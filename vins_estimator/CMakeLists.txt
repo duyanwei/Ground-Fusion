@@ -80,7 +80,7 @@ if(X11_FOUND)
 endif(X11_FOUND)
 
 # Find rquired packeges
-find_package(Boost REQUIRED COMPONENTS thread)
+find_package(Boost REQUIRED COMPONENTS thread filesystem)
 find_package(OpenCV 4 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -93,7 +93,7 @@ include_directories(
   ${DARKNET_PATH}/include
   include
   ${Boost_INCLUDE_DIRS}
-
+  /home/yanwei/tmp_slamtec_ws/src/Sophus_no_template/install/include/
   # ${catkin_INCLUDE_DIRS}
 )
 
@@ -242,6 +242,10 @@ add_dependencies(darknet_ros_lib
   darknet_ros_msgs_generate_messages_cpp
 )
 
+catkin_install_python(PROGRAMS scripts/wheel_odometry_publisher.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 install(TARGETS darknet_ros_lib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -321,10 +325,16 @@ add_library(vins_lib
   src/factor/pose_anchor_factor.cpp
   src/initial/gnss_vi_initializer.cpp
 )
-target_link_libraries(vins_lib ${catkin_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} /usr/local/lib/libSophus.so fmt)
+target_link_libraries(vins_lib
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBS}
+    ${CERES_LIBRARIES}
+    /home/yanwei/tmp_slamtec_ws/src/Sophus_no_template/install/lib/libSophus.so
+    fmt
+)
 
 add_executable(vins_node src/rosNodeTest.cpp)
-target_link_libraries(vins_node vins_lib /usr/local/lib/libSophus.so
+target_link_libraries(vins_node vins_lib  /home/yanwei/tmp_slamtec_ws/src/Sophus_no_template/install/lib/libSophus.so
   ${CMAKE_CURRENT_SOURCE_DIR}/src/linefeatureTracker/line_descriptor/lib/liblinedesc.so
 )
 

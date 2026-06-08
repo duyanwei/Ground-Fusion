@@ -470,6 +470,7 @@ bool Estimator::getWheelInterval(double t0, double t1, vector<pair<double, Eigen
         return false;
     }
     //    ROS_INFO("velVector.size: %d", static_cast<int>(velVector.size()));
+    printf("got wheel!\n");
     return true;
 }
 

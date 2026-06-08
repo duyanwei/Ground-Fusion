@@ -61,6 +61,8 @@ void img0_callback(const sensor_msgs::ImageConstPtr &img_msg)
 {
     m_buf.lock();
     img0_buf.push(img_msg);
+    // std::cout << img_msg->header.stamp.sec << "\t" << img_msg->header.stamp.nsec
+            //   << "\n";
     m_buf.unlock();
 }
 
@@ -251,7 +253,23 @@ cv::Mat getImageFromMsg(const sensor_msgs::ImageConstPtr &img_msg)
         ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::MONO8);
     }
     else
-        ptr = cv_bridge::toCvCopy(img_msg, sensor_msgs::image_encodings::MONO8);
+    {
+        auto tmp = cv_bridge::toCvCopy(img_msg);
+        if (tmp->image.channels() == 1)
+        {
+            ptr = tmp;
+        }
+        else
+        {
+            cv::Mat gray;
+            int code = (img_msg->encoding == sensor_msgs::image_encodings::RGB8 ||
+                        img_msg->encoding == sensor_msgs::image_encodings::RGBA8)
+                           ? cv::COLOR_RGB2GRAY
+                           : cv::COLOR_BGR2GRAY;
+            cv::cvtColor(tmp->image, gray, code);
+            ptr = boost::make_shared<cv_bridge::CvImage>(img_msg->header, sensor_msgs::image_encodings::MONO8, gray);
+        }
+    }
 
     if (EQUALIZE) // new
     {
@@ -664,7 +682,9 @@ int main(int argc, char **argv)
     config_file = readParam<std::string>(n, "config_file");
     cout << "config_file: "<< config_file <<endl;
 */
-    readParameters(config_file);
+    std::string output_path_override;
+    n.getParam("output_path", output_path_override);
+    readParameters(config_file, output_path_override);
     estimator.setParameter();
 
 #ifdef EIGEN_DONT_PARALLELIZE

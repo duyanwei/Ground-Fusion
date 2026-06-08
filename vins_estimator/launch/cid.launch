@@ -1,0 +1,10 @@
+<launch>
+
+    <arg name="dataset" default="cid"/>
+    <arg name="config" default="/home/yanwei/tmp_slamtec_ws/src/Ground-Fusion/config/$(arg dataset)/groundchallenge.yaml" />
+
+    <param name="/use_sim_time" value="true" />
+
+    <node name="vins_node" pkg="vins" type="vins_node" output="screen" args="$(arg config)" />
+
+</launch>

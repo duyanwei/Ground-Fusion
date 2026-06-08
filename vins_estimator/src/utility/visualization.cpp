@@ -355,6 +355,21 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
               << pose_stamped.pose.orientation.y << " "
               << pose_stamped.pose.orientation.z << " "
               << pose_stamped.pose.orientation.w << std::endl;
+        {
+            ofstream foutEval(VINS_RESULT_PATH_FOR_EVAL, ios::app);
+            foutEval.setf(ios::fixed, ios::floatfield);
+            foutEval << std::setprecision(9)
+                << header.stamp.toSec() << " "
+                << std::setprecision(9)
+                << pose_stamped.pose.position.x << " "
+                << pose_stamped.pose.position.y << " "
+                << pose_stamped.pose.position.z << " "
+                << pose_stamped.pose.orientation.x << " "
+                << pose_stamped.pose.orientation.y << " "
+                << pose_stamped.pose.orientation.z << " "
+                << pose_stamped.pose.orientation.w << std::endl;
+            foutEval.close();
+        }
         auto tmp_T = pose_stamped.pose.position;
         printf("time: %f, t: %f %f %f q: %f %f %f %f \n", header.stamp.toSec(), tmp_T.x, tmp_T.y, tmp_T.z,
                tmp_Q.w(), tmp_Q.x(), tmp_Q.y(), tmp_Q.z());

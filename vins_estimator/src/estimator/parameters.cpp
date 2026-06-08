@@ -8,6 +8,7 @@
  *******************************************************/
 
 #include "parameters.h"
+#include <boost/filesystem.hpp>
 
 double INIT_DEPTH;
 double MIN_PARALLAX;
@@ -83,6 +84,7 @@ int ROLLING_SHUTTER;
 std::string EX_CALIB_RESULT_PATH;
 std::string VINS_RESULT_PATH;
 std::string VINS_RESULT_PATH2;
+std::string VINS_RESULT_PATH_FOR_EVAL;
 std::string OUTPUT_FOLDER;
 std::string IMU_TOPIC;
 int ROW, COL;
@@ -135,7 +137,7 @@ T readParam(ros::NodeHandle &n, std::string name)
     return ans;
 }
 
-void readParameters(std::string config_file)
+void readParameters(std::string config_file, std::string output_path_override)
 {
     std::cout << "Test_ky" << std::endl;
     FILE *fh = fopen(config_file.c_str(), "r");
@@ -218,6 +220,10 @@ void readParameters(std::string config_file)
     }
 
     fsSettings["output_path"] >> OUTPUT_FOLDER;
+    if (!output_path_override.empty())
+        OUTPUT_FOLDER = output_path_override;
+
+    boost::filesystem::create_directories(OUTPUT_FOLDER);
 
     {
         PROCESS_TIME_PATH = OUTPUT_FOLDER + "/process_time.csv";
@@ -345,14 +351,17 @@ void readParameters(std::string config_file)
     MIN_PARALLAX = fsSettings["keyframe_parallax"];
     MIN_PARALLAX = MIN_PARALLAX / FOCAL_LENGTH;
 
-    fsSettings["output_path"] >> OUTPUT_FOLDER;
+    // fsSettings["output_path"] >> OUTPUT_FOLDER;
     VINS_RESULT_PATH = OUTPUT_FOLDER + "/vio.txt";
     VINS_RESULT_PATH2 = OUTPUT_FOLDER + "/wheel.txt";
-    std::cout << "result path " << VINS_RESULT_PATH << std::endl;
+    VINS_RESULT_PATH_FOR_EVAL = (OUTPUT_FOLDER.back() == '/' ? OUTPUT_FOLDER.substr(0, OUTPUT_FOLDER.size() - 1) : OUTPUT_FOLDER) + "_AllFrameTrajectory.txt";
+    std::cout << "result path " << VINS_RESULT_PATH_FOR_EVAL << std::endl;
     std::ofstream fout(VINS_RESULT_PATH, std::ios::out);
     fout.close();
     std::ofstream foutw(VINS_RESULT_PATH2, std::ios::out);
     foutw.close();
+    std::ofstream foutww(VINS_RESULT_PATH_FOR_EVAL, std::ios::out);
+    foutww.close();
 
     GROUNDTRUTH_PATH = OUTPUT_FOLDER + "/groundtruth.csv";
     std::cout << "groundtruth path " << GROUNDTRUTH_PATH << std::endl;

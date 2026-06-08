@@ -110,6 +110,7 @@ extern int NUM_ITERATIONS;
 extern std::string EX_CALIB_RESULT_PATH;
 extern std::string VINS_RESULT_PATH;
 extern std::string VINS_RESULT_PATH2;
+extern std::string VINS_RESULT_PATH_FOR_EVAL;
 extern std::string OUTPUT_FOLDER;
 extern std::string IMU_TOPIC;
 extern double TD;
@@ -151,7 +152,7 @@ extern uint32_t GNSS_TRACK_NUM_THRES;
 extern double GNSS_DDT_WEIGHT;
 extern std::string GNSS_RESULT_PATH;
 
-void readParameters(std::string config_file);
+void readParameters(std::string config_file, std::string output_path_override = "");
 
 enum SIZE_PARAMETERIZATION
 {

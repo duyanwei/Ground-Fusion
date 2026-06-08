@@ -1,0 +1,162 @@
+%YAML:1.0
+
+imu: 1
+wheel: 1
+depth: 1
+gnss_enable: 0
+w_replace: 1
+use_motion: 0
+use_line: 0 
+use_mcc: 1 
+wdetect: 0
+stationary_detect: 1
+plane: 0
+use_yolo: 0
+num_of_cam: 1
+equalize: 0        #new
+
+depth_threshold: 3
+
+imu_topic: "/imu"
+# wheel_topic: "/odom"
+wheel_topic: "/fused_odom"
+image0_topic: "/camera/rgb/image_color"
+image1_topic: "/camera/depth/image"
+output_path: "/tmp/ground_fusion/"
+
+cam0_calib: "idc_cam.yaml"
+cam1_calib: "idc_cam.yaml"
+image_width: 640
+image_height: 480
+
+
+# Extrinsic parameter between IMU and Camera.
+estimate_extrinsic: 0   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
+  # 1  Have an initial guess about extrinsic parameters. We will optimize around your initial guess.
+# 2  Don't know anything about extrinsic parameters. You don't need to give R,T. We will try to calibrate it. Do some rotation movement at beginning.
+#If you choose 0 or 1, you should write down the following matrix.
+
+extrinsic_type: 3 # 0 ALL
+                  # 1 Only translation
+                  # 2 Only Rotation
+                  # 3 no z
+                  # 4 no rotation and no z
+
+
+
+body_T_cam0: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [
+     0.9999691, 0.00720362, -0.00314765, -0.02707507,
+     -0.0071841, 0.99995517, 0.0061682, -0.004337,
+     0.00319195, -0.0061454, 0.99997602, -0.01595186,
+     0., 0., 0., 1.]
+
+
+body_T_cam1: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [
+     0.9999691, 0.00720362, -0.00314765, -0.02707507,
+     -0.0071841, 0.99995517, 0.0061682, -0.004337,
+     0.00319195, -0.0061454, 0.99997602, -0.01595186,
+     0., 0., 0., 1.]
+
+# Extrinsic parameter between IMU and Wheel.
+estimate_wheel_extrinsic: 0   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
+# 1  Have an initial guess about extrinsic parameters. We will optimize around your initial guess.
+# 2  Don't know anything about extrinsic parameters. You don't need to give R,T. We will try to calibrate it. Do some rotation movement at beginning.
+#If you choose 0 or 1, you should write down the following matrix.
+
+extrinsic_type_wheel: 0 # 0 ALL
+                        # 1 Only translation
+                        # 2 Only Rotation
+                        # 3 no z
+                        # 4 no rotation and no z
+
+
+body_T_wheel: !!opencv-matrix
+  rows: 4
+  cols: 4
+  dt: d
+  # data: [-0.0424561 , -0.998603 ,-0.0314461,0.0283756,
+  #        0.0729004 , 0.0282942,  -0.996938,0.159482,
+  #        0.996435 ,-0.0446186 , 0.0715973,-0.136109 ,
+  #          0, 0, 0, 1]
+  data: [
+    0.00603597, -1.00024316, -0.06101377,  0.01051268,
+    0.05898918,  0.05737853, -0.99834786,  0.1831526,
+    0.99860942,  0.0102756,   0.05295685, -0.29020201,
+    0.,          0.,          0.,          1.]
+
+#plane noise
+#mono:0.01 stereo:0.005
+roll_n: 0.01
+#mono:0.01  stereo:0.005
+pitch_n: 0.01
+#mono:0.05 stereo:0.025
+zpw_n: 0.05
+
+
+#Multiple thread support
+multiple_thread: 1
+
+#feature traker paprameters
+max_cnt: 150            # max feature number in feature tracking
+min_dist: 30            # min distance between two features 
+freq: 10                # frequence (Hz) of publish tracking result. At least 10Hz for good estimation. If set 0, the frequence will be same as raw image 
+F_threshold: 1.0        # ransac threshold (pixel)
+show_track: 0           # publish tracking image as topic
+flow_back: 1            # perform forward and backward optical flow to improve feature tracking accuracy
+
+#optimization parameters
+max_solver_time: 0.04  # max solver itration time (ms), to guarantee real time
+max_num_iterations: 8   # max solver itrations, to guarantee real time
+keyframe_parallax: 10.0 # keyframe selection threshold (pixel)
+
+#imu parameters       The more accurate parameters you provide, the better performance
+acc_n: 0.00111496108364         # accelerometer measurement noise standard deviation. #0.2   0.04
+gyr_n: 0.000182936867769       # gyroscope measurement noise standard deviation.     #0.05  0.004
+acc_w: 0.000276384606561         # accelerometer bias random work noise standard deviation.  #0.002
+gyr_w: 2.84078581073e-05      # gyroscope bias random work noise standard deviation.     #4.0e-5
+g_norm: 9.805         # gravity magnitude
+
+#wheel parameters
+# rad/s mono:0.004 stereo:0.002
+wheel_gyro_noise_sigma: 0.004
+#　m/s mono:0.01  stereo:0.006
+wheel_velocity_noise_sigma: 0.01
+
+estimate_wheel_intrinsic: 0
+# 0  Have an accurate intrinsic parameters. We will trust the following sx, sy, sw, don't change it.
+# 1  Have an initial guess about intrinsic parameters. We will optimize around your initial guess.
+# 2  TODO Don't know anything about intrinsic parameters. You don't need to give sx, sy, sw. We will try to calibrate it. Do some rotation movement at beginning.
+#If you choose 0 or 1, you should write down the following sx, sy, sw.
+# wheel intrinsic
+sx: 1.0
+sy: 1.0
+sw: 1.0
+
+
+#unsynchronization parameters
+estimate_td: 0                      # online estimate time offset between camera and imu
+td: 0.00                             # initial value of time offset. unit: s. readed image clock + td = real image clock (IMU clock)
+#unsynchronization parameters
+estimate_td_wheel: 0                      # online estimate time offset between camera and wheel
+td_wheel: 0.0                             # initial value of time offset. unit: s. readed image clock + td = real image clock (IMU clock)
+#loop closure parameters
+load_previous_pose_graph: 0        # load and reuse previous pose graph; load from 'pose_graph_save_path'
+pose_graph_save_path: "//tmp/ground_fusion/" # save and load path
+save_image: 0                   # save image in pose graph for visualization prupose; you can close this function by setting 0 
+
+# depth below
+load_grid_map: 0
+grid_map_save_path: "//tmp/ground_fusion/"
+
+#PCL parameters
+depth_dist: 10
+depth_boundary: 10
+resolution: 0.0005 #0.05
